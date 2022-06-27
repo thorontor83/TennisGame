@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class TennisService {
 
-    Scanner scanner = new Scanner(System.in);
+    private Scanner scanner = new Scanner(System.in);
 
     public void initializeGame(){
         System.out.println("Would you like to play a new game of Tennis?: (Y/N)");
@@ -22,7 +22,7 @@ public class TennisService {
         }
     }
 
-    private void playTennisGame(TennisGame tennisGame) {
+    public void playTennisGame(TennisGame tennisGame) {
         while (!tennisGame.isFinished()){
             int pointWinner = playOnePoint(tennisGame.getPlayer1(),tennisGame.getPlayer2());
             System.out.println("Point for Player " + pointWinner);
@@ -38,7 +38,7 @@ public class TennisService {
         initializeGame();
     }
 
-    private void ScorePoint(TennisGame tennisGame, int pointWinner) {
+    public void ScorePoint(TennisGame tennisGame, int pointWinner) {
         if (tennisGame.getTieScore() == Tie.EMPTY){
             if (pointWinner == 1){
                 if(tennisGame.getScore1()==Points.FORTY)
@@ -61,7 +61,7 @@ public class TennisService {
         }
     }
 
-    private void scorePointDuringDeuce(TennisGame tennisGame, int pointWinner) {
+    public void scorePointDuringDeuce(TennisGame tennisGame, int pointWinner) {
         if(pointWinner==1){
             if (tennisGame.getTieScore()==Tie.ADVANTAGE_1){tennisGame.setFinished(true);}
             else{tennisGame.setTieScore(tennisGame.getTieScore().toPlayer1());}
@@ -72,15 +72,15 @@ public class TennisService {
         }
     }
 
-    private int playOnePoint(TennisPlayer player1, TennisPlayer player2) {
+    public int playOnePoint(TennisPlayer player1, TennisPlayer player2) {
         Random random = new Random();
-        int player1Performance = random.nextInt()*player1.getSkillRating();
-        int player2Performance = random.nextInt()*player2.getSkillRating();
-        if (player1Performance>player2Performance){return 1;}
+        long player1Performance = (long) random.nextInt()*player1.getSkillRating();
+        long player2Performance = (long) random.nextInt()*player2.getSkillRating();
+        if (player1Performance > player2Performance){return 1;}
         else {return 2;}
     }
 
-    private TennisGame createNewGame() {
+    public  TennisGame createNewGame() {
         System.out.println("Enter First Player Name:");
         String player1Name = scanner.nextLine();
         if(player1Name.isBlank()){player1Name = "Rafa Nadal";}
@@ -102,7 +102,7 @@ public class TennisService {
         return tennisGame;
     }
 
-    private void showScores(TennisGame tennisGame){
+    public void showScores(TennisGame tennisGame){
         if (tennisGame.isFinished()){
             System.out.println("Match Point");
             System.out.println("The final score is: ");

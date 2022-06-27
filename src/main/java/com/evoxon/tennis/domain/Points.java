@@ -10,6 +10,12 @@ public enum Points {
     }
 
     public Points next() {
-        return values()[ordinal()+1];
+        if (value == FORTY.value)
+        {
+            return values()[ordinal()];
+        }
+        else {
+            return values()[ordinal() + 1];
+        }
     }
 }
