@@ -1,29 +1,28 @@
 package com.evoxon.tennis.domain;
 
+import com.evoxon.tennis.util.KeyboardInput;
+import com.evoxon.tennis.util.RandomNumber;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Random;
-import java.util.Scanner;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class TennisServiceTest {
 
     @InjectMocks
     private TennisService tennisService;
-    private Random random;
-    //private Scanner scanner;
+    @Mock
+    private KeyboardInput keyboardInput;
+    @Mock
+    private RandomNumber randomNumber;
 
     private final PrintStream standardOut = System.out;
     private final ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
@@ -34,23 +33,40 @@ class TennisServiceTest {
     }
 
     @Test
-    void shouldInitializeGame() {/*
+    void shouldInitializeGame() {
         //given
-        InputOutput inputOutput= new InputOutput();
-        String input = "N";
-        InputStream inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
-        System.setIn(inputStream);
+        final TennisPlayer player1 = new TennisPlayer("player1",50);
+        final TennisPlayer player2 = new TennisPlayer("player2",50);
+        final TennisGame tennisGame = new TennisGame(player1,player2,Points.LOVE,Points.LOVE,Tie.EMPTY,false);
+        when(keyboardInput.getNewInput()).thenReturn("Y");
+        TennisService tennisService1 = Mockito.spy(tennisService);
+        Mockito.doReturn(tennisGame).when(tennisService1).createNewGame();
+        Mockito.doNothing().when(tennisService1).playTennisGame(tennisGame);
+        //when
+        tennisService1.initializeGame();
+        //then
+        verify(tennisService1,times(1)).playTennisGame(tennisGame);
+        verify(tennisService1,times(1)).createNewGame();
+    }
+
+    @Test
+    void shouldNotInitializeGame() {
+        //given
+        when(keyboardInput.getNewInput()).thenReturn("N");
         //when
         tennisService.initializeGame();
         //then
-        assertThat(outputStreamCaptor.toString()).contains("Goddbye");*/
+        assertThat(outputStreamCaptor.toString()).contains("Goodbye");
     }
 
     @Test
     void shouldPlayOnePoint() {
         //given
-        final TennisPlayer player1 = new TennisPlayer("player1",0);
-        final TennisPlayer player2 = new TennisPlayer("player2",100);
+        final TennisPlayer player1 = new TennisPlayer("player1",50);
+        final TennisPlayer player2 = new TennisPlayer("player2",50);
+        when(randomNumber.getNewNumber())
+                .thenReturn(10)
+                .thenReturn(90);
         //when
         int winnerPlayer = tennisService.playOnePoint(player1,player2);
         //then
@@ -62,9 +78,15 @@ class TennisServiceTest {
         //given
         final TennisPlayer player1 = new TennisPlayer("player1",50);
         final TennisPlayer player2 = new TennisPlayer("player2",50);
-        final TennisGame tennisGame = new TennisGame(player1,player2,Points.LOVE,Points.LOVE,Tie.EMPTY,false);
+        final TennisGame tennisGame = new TennisGame(player1,player2,Points.FORTY,Points.LOVE,Tie.EMPTY,false);
+        TennisService tennisService1 = Mockito.spy(tennisService);
+        Mockito.doReturn(1).when(tennisService1).playOnePoint(tennisGame.getPlayer1(),tennisGame.getPlayer2());
+        Mockito.doNothing().when(tennisService1).initializeGame();
         //when
+        tennisService1.playTennisGame(tennisGame);
         //then
+        assertThat(tennisGame.isFinished()).isEqualTo(true);
+        assertThat(outputStreamCaptor.toString()).contains("The Match has finished.");
     }
 
     @Test
@@ -120,8 +142,21 @@ class TennisServiceTest {
     @Test
     void shouldCreateNewGame() {
         //given
+        final TennisPlayer player1 = new TennisPlayer("Carlos Moya",65);
+        final TennisPlayer player2 = new TennisPlayer("Andre Agassi",80);
+        final TennisGame tennisGameExpected = new TennisGame(player1,player2,Points.LOVE,Points.LOVE,Tie.EMPTY,false);
+        when(keyboardInput.getNewInput())
+                .thenReturn("Carlos Moya")
+                .thenReturn("65")
+                .thenReturn("Andre Agassi")
+                .thenReturn("80");
         //when
+        TennisGame tennisGame = tennisService.createNewGame();
         //then
+        assertThat(tennisGame.getPlayer1().getName()).isEqualTo(tennisGameExpected.getPlayer1().getName());
+        assertThat(tennisGame.getPlayer2().getName()).isEqualTo(tennisGameExpected.getPlayer2().getName());
+        assertThat(tennisGame.getPlayer1().getSkillRating()).isEqualTo(tennisGameExpected.getPlayer1().getSkillRating());
+        assertThat(tennisGame.getPlayer2().getSkillRating()).isEqualTo(tennisGameExpected.getPlayer2().getSkillRating());
     }
 
     @Test

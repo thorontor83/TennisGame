@@ -1,18 +1,27 @@
 package com.evoxon.tennis.domain;
 
+import com.evoxon.tennis.util.KeyboardInput;
+import com.evoxon.tennis.util.RandomNumber;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Random;
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class TennisService {
+    @Autowired
+    private final KeyboardInput keyboardInput;
+    @Autowired
+    private final RandomNumber randomNumber;
 
-    private Scanner scanner = new Scanner(System.in);
+    public TennisService(KeyboardInput keyboardInput, RandomNumber randomNumber) {
+        this.keyboardInput = keyboardInput;
+        this.randomNumber = randomNumber;
+    }
 
     public void initializeGame(){
         System.out.println("Would you like to play a new game of Tennis?: (Y/N)");
-        String newGame = scanner.nextLine();
+        String newGame = keyboardInput.getNewInput();
         if(newGame.compareTo("Y")==0 || newGame.compareTo("y")==0){
             TennisGame tennisGame = createNewGame();
             playTennisGame(tennisGame);
@@ -74,24 +83,24 @@ public class TennisService {
 
     public int playOnePoint(TennisPlayer player1, TennisPlayer player2) {
         Random random = new Random();
-        long player1Performance = (long) random.nextInt()*player1.getSkillRating();
-        long player2Performance = (long) random.nextInt()*player2.getSkillRating();
+        long player1Performance = (long) randomNumber.getNewNumber()*player1.getSkillRating();
+        long player2Performance = (long) randomNumber.getNewNumber()*player2.getSkillRating();
         if (player1Performance > player2Performance){return 1;}
         else {return 2;}
     }
 
     public  TennisGame createNewGame() {
         System.out.println("Enter First Player Name:");
-        String player1Name = scanner.nextLine();
+        String player1Name = keyboardInput.getNewInput();
         if(player1Name.isBlank()){player1Name = "Rafa Nadal";}
         System.out.println("Enter First Player Skill Level: (1-100)");
-        String player1Skill = scanner.nextLine();
+        String player1Skill = keyboardInput.getNewInput();
         if(player1Skill.isBlank()){player1Skill = "85";}
         System.out.println("Enter Second Player Name:");
-        String player2Name = scanner.nextLine();
+        String player2Name = keyboardInput.getNewInput();
         if(player2Name.isBlank()){player2Name = "Roger Federer";}
         System.out.println("Enter Second Player Skill Level: (1-100)");
-        String player2Skill = scanner.nextLine();
+        String player2Skill = keyboardInput.getNewInput();
         if(player2Skill.isBlank()){player2Skill = "85";}
         TennisPlayer player1 = new TennisPlayer(player1Name,Integer.parseInt(player1Skill));
         TennisPlayer player2 = new TennisPlayer(player2Name,Integer.parseInt(player2Skill));
